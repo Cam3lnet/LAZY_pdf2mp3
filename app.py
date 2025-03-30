@@ -19,42 +19,61 @@ def home():
 @app.route('/convert', methods=['POST'])
 def convert():
     if 'pdf_file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    
+        return jsonify({'error': 'No file uploaded'}), 400
+        
     file = request.files['pdf_file']
     
     if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    
-    if file and file.filename.lower().endswith('.pdf'):
+        return jsonify({'error': 'No file selected'}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'Only PDF files are allowed'}), 400
+
+    try:
+        # Create necessary directories
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+
+        # Generate unique filenames
         unique_id = str(uuid.uuid4())
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{unique_id}.pdf")
         mp3_path = os.path.join(app.config['OUTPUT_FOLDER'], f"{unique_id}.mp3")
-        
+
+        # Save uploaded file
         file.save(pdf_path)
-        
-        try:
-            text = ""
-            with open(pdf_path, 'rb') as pdf_file:
-                pdf_reader = PdfReader(pdf_file)
-                for page in pdf_reader.pages:
-                    text += page.extract_text()
-            
-            tts = gTTS(text=text, lang='en')
-            tts.save(mp3_path)
-            
-            return jsonify({
-                'success': True, 
-                'filename': f"{unique_id}.mp3"
-            })
-            
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-        finally:
-            if os.path.exists(pdf_path):
-                os.remove(pdf_path)
-    
-    return jsonify({'error': 'Invalid file format'}), 400
+
+        # Extract text from PDF
+        text = extract_text_from_pdf(pdf_path)
+        if not text.strip():
+            raise ValueError("No text found in PDF document")
+
+        # Convert text to speech
+        tts = gTTS(text=text, lang='en')
+        tts.save(mp3_path)
+
+        return jsonify({
+            'success': True,
+            'filename': f"{unique_id}.mp3"
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        # Clean up uploaded PDF
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
+
+def allowed_file(filename):
+    return '.' in filename and filename.lower().endswith('.pdf')
+
+def extract_text_from_pdf(pdf_path):
+    text = ""
+    with open(pdf_path, 'rb') as pdf_file:
+        pdf_reader = PdfReader(pdf_file)
+        for page in pdf_reader.pages:
+            text += page.extract_text() or ""  # Handle empty pages
+    return text
+
 
 @app.route('/download/<filename>')
 def download(filename):
