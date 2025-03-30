@@ -1,9 +1,8 @@
-import os
-import uuid
 from flask import Flask, render_template, request, send_file, jsonify
 from PyPDF2 import PdfReader
 from gtts import gTTS
-import tempfile
+import os
+import uuid
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -14,7 +13,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 
 @app.route('/')
-def index():
+def home():
     return render_template('index.html')
 
 @app.route('/convert', methods=['POST'])
@@ -28,23 +27,19 @@ def convert():
         return jsonify({'error': 'No selected file'}), 400
     
     if file and file.filename.lower().endswith('.pdf'):
-        # Generate unique filename
         unique_id = str(uuid.uuid4())
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{unique_id}.pdf")
         mp3_path = os.path.join(app.config['OUTPUT_FOLDER'], f"{unique_id}.mp3")
         
-        # Save uploaded PDF
         file.save(pdf_path)
         
         try:
-            # Extract text from PDF
             text = ""
             with open(pdf_path, 'rb') as pdf_file:
                 pdf_reader = PdfReader(pdf_file)
                 for page in pdf_reader.pages:
                     text += page.extract_text()
             
-            # Convert text to speech
             tts = gTTS(text=text, lang='en')
             tts.save(mp3_path)
             
@@ -56,7 +51,6 @@ def convert():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
         finally:
-            # Clean up uploaded PDF
             if os.path.exists(pdf_path):
                 os.remove(pdf_path)
     
@@ -67,7 +61,7 @@ def download(filename):
     return send_file(
         os.path.join(app.config['OUTPUT_FOLDER'], filename),
         as_attachment=True,
-        download_name=f"converted_audio.mp3"
+        download_name="converted_audio.mp3"
     )
 
 if __name__ == '__main__':
