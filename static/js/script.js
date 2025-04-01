@@ -1,3 +1,51 @@
+// Function to update progress bar
+function updateProgressBar(percentage) {
+    const progressFill = document.querySelector('.progress-fill');
+    const progressPercentage = document.querySelector('.progress-percentage');
+    
+    if (!progressFill || !progressPercentage) return;
+    
+    // Update the width of the progress bar fill
+    progressFill.style.width = percentage + '%';
+    
+    // Update the text showing the percentage
+    progressPercentage.textContent = percentage + '%';
+    
+    // Add classes for color changes at different thresholds
+    if (percentage >= 80) {
+        progressFill.className = 'progress-fill progress-fill-80';
+    } else if (percentage >= 50) {
+        progressFill.className = 'progress-fill progress-fill-50';
+    } else {
+        progressFill.className = 'progress-fill';
+    }
+}
+
+// Function to simulate conversion progress (replace with actual progress tracking)
+function simulateConversion() {
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 5;
+        updateProgressBar(progress);
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            // Show download section or whatever comes next
+            document.getElementById('progress-section').classList.add('hidden');
+            document.getElementById('download-section').classList.remove('hidden');
+        }
+    }, 300); // Update every 300ms
+}
+
+// Call this function when starting the conversion process
+document.getElementById('convert-btn').addEventListener('click', function() {
+    // Show progress section
+    document.getElementById('progress-section').classList.remove('hidden');
+    
+    // Start the progress animation
+    simulateConversion();
+    
+    // Optionally, you can also start the actual conversion process here
 document.getElementById('upload-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -50,3 +98,4 @@ function showError(message) {
     toggleElements([errorSection], ['progress-section', 'download-section']);
 }
 
+});

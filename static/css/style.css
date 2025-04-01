@@ -54,3 +54,52 @@ button:hover {
     text-align: center;
     margin-top: 20px;
 }
+
+.progress-bar {
+    width: 100%;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 20px;
+    margin: 10px 0 20px;
+  }
+  
+  .progress-fill {
+    width: 0%;
+    height: 100%;
+    background-color: #4CAF50;
+    transition: width 0.3s ease;
+    border-radius: 4px;
+    position: relative;
+  }
+  
+  .progress-bar--color-update .progress-fill {
+    background-color: #ff6347;
+  }
+  
+  .progress-bar--color-update .progress-fill.progress-fill-50 {
+    background-color: #ffa500;
+  }
+  
+  .progress-bar--color-update .progress-fill.progress-fill-80 {
+    background-color: #4CAF50;
+  }
+  
+  @keyframes ellipsis {
+    0% { content: ""; }
+    25% { content: "."; }
+    50% { content: ".."; }
+    75% { content: "..."; }
+  }
+  
+  h2.converting:after {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    animation: ellipsis 1.5s infinite;
+  }
+    .error-message {
+        color: red;
+        font-weight: bold;
+        text-align: center;
+    }  
