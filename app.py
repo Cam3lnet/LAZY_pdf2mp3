@@ -74,7 +74,7 @@ def extract_text_from_pdf(pdf_path):
             text += page.extract_text() or ""  # Handle empty pages
     return text
 
-
+"""
 @app.route('/download/<filename>')
 def download(filename):
     return send_file(
@@ -82,6 +82,28 @@ def download(filename):
         as_attachment=True,
         download_name="converted_audio.mp3"
     )
+"""
+
+@app.route('/download/<filename>')
+def download(filename):
+    file_path = os.path.join(app.config['OUTPUT_FOLDER'], filename)
+    response = send_file(
+        file_path,
+        as_attachment=True,
+        download_name="converted_audio.mp3"
+        return response
+    )
+     # This callback will be executed when the response is closed,
+    # ensuring the file is only removed after the download is complete.
+@response.call_on_close
+    def cleanup():
+        try:
+            os.remove(file_path)
+            app.logger.info(f"Removed file: {file_path}")
+        except Exception as e:
+            app.logger.error(f"Error removing file {file_path}: {e}")
+
+    return response
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
