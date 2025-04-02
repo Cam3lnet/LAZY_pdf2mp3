@@ -82,6 +82,10 @@ def download(filename):
         as_attachment=True,
         download_name="converted_audio.mp3"
     )
+    finally:
+        # Clean up uploaded mp3
+        if os.path.exists(mp3_path):
+            os.remove(mp3_path)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
