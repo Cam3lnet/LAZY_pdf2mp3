@@ -91,7 +91,6 @@ def download(filename):
         file_path,
         as_attachment=True,
         download_name="converted_audio.mp3"
-        return response
     )
      # This callback will be executed when the response is closed,
     # ensuring the file is only removed after the download is complete.
