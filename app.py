@@ -87,10 +87,14 @@ def download(filename):
 @app.route('/download/<filename>')
 def download(filename):
     file_path = os.path.join(app.config['OUTPUT_FOLDER'], filename)
+    
+    # Split the original filename into name and extension, then replace with .mp3
+    base_name = os.path.splitext(file)[0]
+    download_filename = f"{base_name}.mp3"
     response = send_file(
         file_path,
         as_attachment=True,
-        download_name="converted_audio.mp3"
+        download_name=download_filename
     )
      # This callback will be executed when the response is closed,
     # ensuring the file is only removed after the download is complete.
